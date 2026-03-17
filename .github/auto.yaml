@@ -1,0 +1,44 @@
+name: Smart Daily Update
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate random commit message
+        id: msg
+        run: |
+          messages=(
+            "chore: update learning progress"
+            "docs: update notes"
+            "feat: improve flutter practice"
+            "chore: daily coding log"
+            "refactor: clean code structure"
+          )
+          echo "msg=${messages[$RANDOM % ${#messages[@]}]}" >> $GITHUB_OUTPUT
+
+      - name: Update notes
+        run: |
+          mkdir -p notes
+          echo "## Update $(date)" >> notes/daily_log.md
+          echo "- Practicing Flutter 🚀" >> notes/daily_log.md
+          echo "" >> notes/daily_log.md
+
+      - name: Update progress
+        run: |
+          echo "Update $(date)" >> activity_log.txt
+
+      - name: Commit & Push
+        run: |
+          git config --global user.name "Punaa"
+          git config --global user.email "syaapuna@gmail.com"
+          git add .
+          git commit -m "${{ steps.msg.outputs.msg }}"
+          git push
