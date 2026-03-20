@@ -1,18 +1,19 @@
 name: Smart Daily Update
 
 on:
-  schedule:
-    - cron: "0 1 * * *"
   workflow_dispatch:
   push:
     branches: ["main"]
+  schedule:
+    - cron: "0 1 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Generate random commit message
         id: msg
@@ -26,21 +27,15 @@ jobs:
           )
           echo "msg=${messages[$RANDOM % ${#messages[@]}]}" >> $GITHUB_OUTPUT
 
-      - name: Update notes
+      - name: Force file change (WAJIB biar commit selalu ada)
         run: |
-          mkdir -p notes
-          echo "## Update $(date)" >> notes/daily_log.md
-          echo "- Practicing Flutter 🚀" >> notes/daily_log.md
-          echo "" >> notes/daily_log.md
-
-      - name: Update progress
-        run: |
-          echo "Update $(date)" >> activity_log.txt
+          echo "Update $(date +'%Y-%m-%d %H:%M:%S')" >> activity_log.txt
 
       - name: Commit & Push
         run: |
-          git config --global user.name "Punaa"
-          git config --global user.email "syaapuna@gmail.com"
+          git config --global user.name "Punaa-Embrace"
+          git config --global user.email "putrabtm055@gmail.com"
+
           git add .
-          git commit -m "${{ steps.msg.outputs.msg }}" || echo "No changes"
+          git commit -m "${{ steps.msg.outputs.msg }}"
           git push
